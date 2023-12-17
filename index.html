@@ -58,9 +58,9 @@ jsonPromise.then((responseData) => {
     return {
 
       name: comment.author.name,
-      userLike: comment.isLiked,
+      userLike: comment.isLiked,//'like-button -no-active-like',              
       comment: comment.text,
-      like: comment.like,
+      like: comment.likes,
       date: new Date(comment.date).toLocaleDateString() + " " + (new Date(comment.date).getHours() < 10 ? '0' + new Date(comment.date).getHours() : new Date(comment.date).getHours()) + ":" + (new Date(comment.date).getMinutes() < 10 ? '0' + new Date(comment.date).getMinutes() : new Date(comment.date).getMinutes()) + ":" + (new Date(comment.date).getSeconds() < 10 ? '0' + new Date(comment.date).getSeconds() : new Date(comment.date).getSeconds()),
 
     };
@@ -75,36 +75,32 @@ jsonPromise.then((responseData) => {
 apiGet();
   
 let commentsArray = [
-      {
-        name: 'Глеб Фокин',
-    date: '12.02.22 12:18',
-    comment: 'Это будет первый комментарий на этой странице',
-    like: 3,
-    userLike: false,
-    paint: ''
-  },
-      
-      {
-        name: 'Варвара Н.',
-    date: '13.02.22 19:22',
-    comment: 'Мне нравится как оформлена эта страница! ❤',
-    like: 75,
-    userLike: true,
-    paint: '-active-like'
-      }
+  //   {
+  //     name: 'Глеб Фокин',
+  // date: '12.02.22 12:18',
+  // comment: 'Это будет первый комментарий на этой странице',
+  // like: 3,
+  // userLike: false,
+  // paint: ''
+  // },     
+  //   {
+  //     name: 'Варвара Н.',
+  // date: '13.02.22 19:22',
+  // comment: 'Мне нравится как оформлена эта страница! ❤',
+  // like: 75,
+  // userLike: true,
+  // paint: '-active-like'
+  //   }
     ];
-    
+
+ 
     const handleLike = () => {
       const likeButtons = document.querySelectorAll('.like-button'); 
       for (const likeButton of likeButtons) {
         likeButton.addEventListener('click', (event) => { 
           event.stopPropagation();
           const index = likeButton.dataset.index;
-          //console.log(
-          //  'Индекс кнопки лайка на которой произошел клик: ' + index
-         // );
-         // let counter = comments[index]['like_counter'];
-         //const index = likeButton.dataset.index;
+          
       if (commentsArray[index].userLike === false) {
         commentsArray[index].paint = '-active-like'; // добавить класс для закрашивания кнопки
         commentsArray[index].like += 1;
@@ -118,6 +114,7 @@ let commentsArray = [
         });
       }
     };
+    
     const renderComments = () => {
       const newComments = commentsArray.map((item, index) => {
           return `<li data-index= "${index}"  class="comment">
@@ -147,6 +144,8 @@ let commentsArray = [
       answerComment();
     };
     renderComments();
+
+
     buttonElement.disabled = true;
 nameInputElement.addEventListener('input', () =>{
   if (nameInputElement.value  === '' ) {
@@ -167,23 +166,7 @@ buttonElement.addEventListener('click', () => {
       return;
     }
 
-  //  const plusZero = (str) => {
-   //   if (str < 10) return `0${str}`;
-   // };
-    
-   // const getDateNow = () => { 
-   // let currentDate = new Date();
-   // console.log(
-  //      currentDate.toLocaleDateString(),
-   //     currentDate.toLocaleTimeString()
-   //   );
-   //   return `${currentDate.toLocaleDateString()} ${currentDate
-     //   .toLocaleTimeString()
-    //    .slice(0, 5)}`;
-   // };
-
-
-   const date = new Date();
+  const date = new Date();
   const formattedDate =
   date.getDate().toString().padStart(2, '0') + '.' + 
   (date.getMonth() + 1).toString().padStart(2, '0') + '.' +
@@ -191,12 +174,20 @@ buttonElement.addEventListener('click', () => {
   date.getHours().toString().padStart(2, '0') + ':' +
   date.getMinutes().toString().padStart(2, '0');
 
-  // nameInputElement.classList.remove("error");  class='quote'
+
+
+  const sanitizeHtml = (htmlString) => {
+      return htmlString.replaceAll("<", "&lt;")// элементарная обработка пользовательского ввода на предмет
+        .replaceAll(">", "&gt;") // всяких нехороших вещей в HTML-коде, в данном случае управляющие символы разметки "<" и ">"
+        .replaceAll("&", "&amp;")
+        .replaceAll('"', "&quot;");// меняются; на их коды, а браузер всёравно выводит эти символы
+    };
+   nameInputElement.classList.remove("error");  //class='quote'
     
       commentsArray.push({
-        name: nameInputElement.value
+        name: nameInputElement.value//
             .replaceAll("&", "&amp;")
-            .replaceAll("<", "&lt;")
+          .replaceAll("<", "&lt;")
             .replaceAll(">", "&gt;")
             .replaceAll('"', "&quot;"),
       date: formattedDate,
@@ -210,7 +201,7 @@ buttonElement.addEventListener('click', () => {
  
         like: 0,
         userLike:false,
-        paint: '',
+      paint: '',
       });
 
       const postCommentsArrayPromise = fetch("https://wedev-api.sky.pro/api/v1/kamila-beketova/comments", {
@@ -236,28 +227,34 @@ buttonElement.addEventListener('click', () => {
       });
     });
 
-      renderComments();
+      
         nameInputElement.value = '';
         commentInputElement.value = '';
         buttonElement.disabled = true;
-        
+        renderComments();
     });
 
-    function answerComment() {
+   //function
+
+   function answerComment() {
   const oldComments = document.querySelectorAll('.comment');
 
   for (const oldComment of oldComments) {
     oldComment.addEventListener('click', (event) =>{
       event.stopPropagation();
 
+      //const dataComment = comment.dataset.text;
+      //  const dataName = comment.dataset.name;
       const index = oldComment.dataset.index;
       const comment = commentsArray[index];
-
-      commentInputElement.value = `%BEGIN_QUOTE${commentsArray[index].name} \n
-      ${comment.comment}END_QUOTE%`
+      commentInputElement.value = `> ${commentsArray[index].name}\n\n${comment.comment}`;
+        console.log(`> ${commentsArray[index].name}\n\n${comment.comment}`);
+     // commentInputElement.value = `%BEGIN_QUOTE${commentsArray[index].name} \n
+     // ${comment.comment}END_QUOTE%`
     })
   }
 }
+
 
 deleteButtonElement.addEventListener('click', () =>{
   const lastCommentIndex = listElement.innerHTML.lastIndexOf( '<li class="comment">' );
@@ -271,9 +268,11 @@ document.addEventListener('keyup', (event) =>{
   if (event.key === 'Enter') {
     buttonElement.click();
   }
+       
   apiGet();
     renderComments();
     likeButtons();
+
 });
     console.log("It works!");
   </script>

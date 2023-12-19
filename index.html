@@ -184,7 +184,7 @@ buttonElement.addEventListener('click', () => {
     };
    nameInputElement.classList.remove("error");  //class='quote'
     
-      commentsArray.push({
+   /*   commentsArray.push({
         name: nameInputElement.value//
             .replaceAll("&", "&amp;")
           .replaceAll("<", "&lt;")
@@ -202,7 +202,7 @@ buttonElement.addEventListener('click', () => {
         like: 0,
         userLike:false,
       paint: '',
-      });
+      }); */
 
       const postCommentsArrayPromise = fetch("https://wedev-api.sky.pro/api/v1/kamila-beketova/comments", {
       method: "POST",
@@ -227,7 +227,34 @@ buttonElement.addEventListener('click', () => {
       });
     });
 
-      
+    const fetchPromise = fetch("https://wedev-api.sky.pro/api/v1/kamila-beketova/comments", {
+  method: "GET"
+});
+
+fetchPromise.then((response) => {
+
+const jsonPromise = response.json();
+jsonPromise.then((responseData) => {
+  const fromApp = responseData.comments.map((comment) => {
+
+    return {
+
+      name: comment.author.name,
+      userLike: comment.isLiked,//'like-button -no-active-like',              
+      comment: comment.text,
+      like: comment.likes,
+      date: new Date(comment.date).toLocaleDateString() + " " + (new Date(comment.date).getHours() < 10 ? '0' + new Date(comment.date).getHours() : new Date(comment.date).getHours()) + ":" + (new Date(comment.date).getMinutes() < 10 ? '0' + new Date(comment.date).getMinutes() : new Date(comment.date).getMinutes()) + ":" + (new Date(comment.date).getSeconds() < 10 ? '0' + new Date(comment.date).getSeconds() : new Date(comment.date).getSeconds()),
+
+    };
+  });
+  commentsArray = fromApp;
+
+  renderComments();
+});
+});  
+
+
+
         nameInputElement.value = '';
         commentInputElement.value = '';
         buttonElement.disabled = true;
